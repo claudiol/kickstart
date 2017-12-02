@@ -15,7 +15,7 @@ tftp_pxe:
 apache: httpd
 web_root: /var/www/html
 
-# These variables need to be configured
+#Settable variables
 #Absolute path to .iso file
 iso_path: /root/rhel74.iso
 
@@ -28,5 +28,5 @@ dhcp_start:
 #DHCP range end address
 dhcp_end: 
 
-#If set to "true" DHCP service will NOT be installed 
+# Set to "true" to enable DHCP.
 dhcp: true

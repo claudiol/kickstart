@@ -1,17 +1,33 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+This role is to automate the configuration of a kickstart server for RPM-based (rhel,centos) operating systems.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+The user of this role will need access to the installation iso file and will need to copy it to the target node.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+The settable variables for this role are in defaults/main.yml
+
+The absolute path to the installation .iso file. ex: /root/rhel-7-server-x86_64.iso
+iso_path: 
+
+Define a short name for the kickstart media. ex: rhel7.4
+kick_media:
+
+If you would like to configure DHCP services, set this to "true"; Please note that the subnet used during DHCP scope creation is the default IPv4 address (eth0) of the target system. For example, if your eth0 network information is 192.168.124.200/24, DHCP will be configured for 192.168.124.0/255.255.255.0. To override you will need to update kick_srvr, dhcp_net and dhcp_mask variables.
+
+dhcp: false
+
+If DHCP is enabled, define the starting IP address of the scope.
+dhcp-start:
+
+If DHCP is enabled, define the last IP address of the scope.
+dhcp_end:
 
 Dependencies
 ------------
@@ -25,7 +41,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: kickstart }
 
 License
 -------

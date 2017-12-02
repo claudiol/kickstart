@@ -144,4 +144,8 @@
         name: dhcpd
         state: started
         enabled: yes
-  when:  not dhcp
+
+  when: 
+    - dhcp
+    - dhcp_start != "" 
+    - dhcp_end != ""
