@@ -1,2 +1,0 @@
-# kickstart
-kickstart repo
