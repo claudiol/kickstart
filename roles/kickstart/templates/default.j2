@@ -1,8 +1,0 @@
-default vesamenu.c32
-timeout 50
-prompt 0 
-
-label {{ kick_media }}
-  menu label {{ kick_media }}
-  kernel vmlinuz
-  append ks=http://{{ kick_srvr }}/{{ kick_cfg }} initrd=initrd.img
