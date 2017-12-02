@@ -1,0 +1,62 @@
+#version=DEVEL
+# System authorization information
+auth --enableshadow --passalgo=sha512
+# Use CDROM installation media
+url --url http://{{ kick_srvr }}/{{ kick_media }}
+# Use graphical install
+text
+#graphical
+# Run the Setup Agent on first boot
+firstboot --enable
+ignoredisk --only-use=vda
+# Keyboard layouts
+keyboard --vckeymap=us --xlayouts='us'
+# System language
+lang en_US.UTF-8
+
+#Reboot when its all over
+reboot
+
+# Network information
+network  --bootproto=dhcp --device=eth0 --ipv6=auto --activate
+network  --hostname=localhost.localdomain
+
+# Root password
+rootpw --iscrypted $1$EqP5IU2y$iKshMFhjulsQvu6xWIcKM/
+# System services
+services --disabled="chronyd"
+# System timezone
+timezone America/Chicago --isUtc --nontp
+# System bootloader configuration
+bootloader --append=" crashkernel=auto" --location=mbr --boot-drive=vda
+autopart --type=lvm
+# Partition clearing information
+clearpart --none --initlabel
+
+%packages
+@^minimal
+@core
+kexec-tools
+vim
+wget
+
+
+%end
+
+%post
+/usr/sbin/grubby --update-kernel=ALL --args=console=ttyS0
+
+useradd devops
+mkdir /home/devops/.ssh
+chmod 700 /home/devops/.ssh
+cat >> /home/devops/.ssh/authorized_keys << EOF
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBG8t5lwCHjfXRGYTJN4TeKM4MzMJxGqmZ+OwSkBFDdeM+ZddxFl3bwyhTvw9d4K2wrGgPJednu7NhmenP8X5CgvvuTf+XeTWV5rno3zT/GAG19Fxg6l4hFez6fuaC9qfY4TCBOBqSyAFjyiV02gWcH8jK4Z6LRyLho2Hd0TbW534ehRhUg/6fFxFDRKGx97kZxXiW62VHQ7tQUWvlIwu4xz4nVHTdEXBp99CwwkA736PBpF/y0JU0Z3LwK4KYz0lqkNtFTzNL/KfqIi0uZjW6V9da5Wm2qvLHq5fZpLATf2ZLwhodmXFvMIzxGgx6Ff9ovbKAXDMkYNbAWGpliG8N jrickard@thunderdome
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC9SeT47sveJ2LUxsi+Mhy1zNxPFfRe7Ni1//ezeE574KG6xR5QN2K2CRGARTcItlZcW9htgkBGK2mMbayP8wayPFcMPzSzAxXpkGX0aqeU5LOkqvbA1cpJFI9E/SRRPi+g2GxlEFfY05NDgwTRFnc27z/rFPz1gWh1zZ8TUHhEtqbYDYiq7abHu1n7GHUD6ABfu/W51OKr1Dd++ZWpUmDc5VnPyRT8t4EHbh+3aEBBpgLEVR3rNd3WSr0zLonGcs2DO+yonwwwyWE2hvHRqyVekpfF72DFGk4mvB3ECuhQ5QFTNC2OPnYBczDtPpLKHLi4er0gglLtCWIv8mnQx427 jrickard@jrickard
+EOF
+chown -R devops:devops /home/devops/
+chmod 600 /home/devops/.ssh/authorized_keys
+cat >> /etc/sudoers.d/devops << EOF
+devops ALL=(ALL) NOPASSWD: ALL
+EOF
+chmod 400 /etc/sudoers/devops
+%end

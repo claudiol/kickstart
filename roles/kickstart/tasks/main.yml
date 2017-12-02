@@ -1,0 +1,147 @@
+---
+# tasks file for roles/kickstart
+- name: Mount content to /mnt
+  mount:
+    fstype: iso9660
+    state: mounted
+    opts: loop
+    path: /mnt
+    src: "{{ iso_path }}"
+
+- name: Create repo from local media
+  yum_repository:
+    baseurl: file:///mnt/
+    description: Local Media Repo
+    name: localrepo
+    enabled: yes
+    gpgcheck: no
+
+- name: Install RSYNC
+  yum:
+    name: rsync
+    state: installed
+
+- name: Configure web server
+  block:
+    - name: Install packages
+      yum:
+        name: "{{ apache }}"
+        state: latest
+    
+    - name: Create directory for {{ kick_media }}
+      file:
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+        setype: httpd_sys_content_t
+        path: "{{ item }}"
+      with_items:
+        - "{{ web_root }}/{{ kick_media }}"
+      changed_when: false
+
+    - name: Copy content to web dir
+      delegate_to: "{{ inventory_hostname }}"
+      synchronize:
+        dest: "{{ item }}"
+        src:  /mnt/
+        recursive: yes
+      with_items: 
+        - "{{ web_root }}/{{ kick_media }}"
+      changed_when: false
+        
+    - name: Make {{ kick_cfg }} avail
+      template:
+        src: ks.cfg.j2
+        dest: "{{ web_root }}/ks.cfg"
+        owner: root
+        group: root
+        mode: 0644
+        setype: httpd_sys_content_t
+
+    - name: Start the {{ apache }} service
+      service:
+        name: "{{ apache }}"
+        state: started
+        enabled: true
+
+    - name: Configure the firewall
+      firewalld:
+        service: http
+        immediate: yes
+        permanent: yes
+        state: enabled
+
+- name: Configure TFTP
+  block:
+    - name: Install {{ tftp_pkgs }}
+      yum:
+        name: "{{ tftp_pkgs }}"
+        state: latest
+
+    - name: Create pxelinux.cfg
+      file:
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+        setype: cobbler_var_lib_t
+        path: "{{ tftp_dir }}/pxelinux.cfg"
+
+    - name: Place pxe files
+      copy:
+        src: "{{ item }}"
+        dest: "{{ tftp_dir }}"
+        setype: cobbler_var_lib_t
+      with_items:
+        - "{{ tftp_pxe }}"
+
+    - name: Default pxe menu
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+        setype: "{{ item.setype }}"
+      with_items:
+        - { src: 'default.j2', dest: '{{ tftp_dir }}/pxelinux.cfg/default', setype: 'cobbler_var_lib_t'}
+        - { src: 'tftp.j2', dest: '/etc/xinetd.d/tftp', setype: 'etc_t'}
+
+    - name: TFTP Services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items:
+        - xinetd
+        - tftp
+
+    - name: TFTP Firewall
+      firewalld:
+        service: tftp
+        state: enabled
+        immediate: yes
+        permanent: yes
+
+- name: Configure DHCP
+  block:
+    - name: Install dhcp package
+      yum:
+        name: dhcp
+        state: latest
+    
+    - name: dhcpd template
+      template:
+        src: dhcpd.conf.j2
+        dest: /etc/dhcp/dhcpd.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: dhcp service
+      service:
+        name: dhcpd
+        state: started
+        enabled: yes
+  when:  not dhcp
