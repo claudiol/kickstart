@@ -1,7 +1,6 @@
 ---
 # defaults file for roles/kickstart
 #
-#
 kick_srvr: '{{ ansible_default_ipv4.address }}'
 dhcp_net: '{{ ansible_default_ipv4.network }}'
 dhcp_mask: '{{ ansible_default_ipv4.netmask }}'
@@ -15,7 +14,6 @@ tftp_pxe:
  - /mnt/isolinux/vmlinuz
 apache: httpd
 web_root: /var/www/html
-
 
 # These variables need to be configured
 #Absolute path to .iso file
