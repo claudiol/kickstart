@@ -14,7 +14,7 @@ Role Variables
 The settable variables for this role are in defaults/main.yml
 
 The absolute path to the installation .iso file. ex: /root/rhel-7-server-x86_64.iso
-iso_path: 
+\niso_path: 
 
 Define a short name for the kickstart media. ex: rhel7.4
 kick_media:
