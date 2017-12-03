@@ -1,5 +1,5 @@
 ---
-- name: Kickstart Playbook
+- name: Kickstart Role
   hosts: ks
   roles:
     - kickstart
