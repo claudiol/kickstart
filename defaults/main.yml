@@ -22,7 +22,7 @@ reponame: localrepo
 mnt_pth: /mnt
 
 #Absolute path to .iso file
-iso_pth: /tmp/rhel-7.4.iso
+iso_pth: /root/rhel-7.4.iso
 
 #Remove the iso from the system? Override to "true" to keep.
 keep_iso: true
@@ -40,10 +40,10 @@ xtras: rsync,policycoreutils-python
 kick_media: rhel7.4
 
 #DHCP range start address
-dhcp_start: ""
+dhcp_start: 192.168.124.155
 
 #DHCP range end address
-dhcp_end: ""
+dhcp_end: 192.168.124.165
 
 # Set to "true" to enable DHCP.
 dhcp: true

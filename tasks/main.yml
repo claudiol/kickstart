@@ -43,7 +43,6 @@
         path: "{{ item }}"
       with_items:
         - "{{ web_root }}/{{ kick_media }}"
-      changed_when: false
 
     - name: Copy content to {{ web_root }}/{{ kick_media }}
       delegate_to: "{{ inventory_hostname }}"
@@ -53,7 +52,6 @@
         recursive: yes
       with_items: 
         - "{{ web_root }}/{{ kick_media }}"
-      changed_when: false
         
     - name: Make {{ kick_cfg }} avail
       template:
