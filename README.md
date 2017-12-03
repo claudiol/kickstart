@@ -14,7 +14,8 @@ Role Variables
 The settable variables for this role are in defaults/main.yml
 
 The absolute path to the installation .iso file. ex: /root/rhel-7-server-x86_64.iso
-\niso_path: 
+```
+iso_path: 
 
 Define a short name for the kickstart media. ex: rhel7.4
 kick_media:
@@ -34,11 +35,11 @@ If you would like to configure DHCP services, set this to "true"; Please note th
 dhcp: false
 
 If DHCP is enabled, define the starting IP address of the scope.
-dhcp-start:
+dhcp_start:
 
 If DHCP is enabled, define the last IP address of the scope.
 dhcp_end:
-
+```
 Dependencies
 ------------
 
