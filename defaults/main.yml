@@ -14,7 +14,7 @@ tftp_pxe:
  - /mnt/isolinux/vmlinuz
 apache: httpd
 web_root: /var/www/html
-repoman: localrepo
+reponame: localrepo
 
 
 #Settable variables
