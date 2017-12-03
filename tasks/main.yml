@@ -1,25 +1,30 @@
 ---
 # tasks file for roles/kickstart
-- name: Mount content to /mnt
+- name: Mount content to {{ mnt_pth }}
   mount:
     fstype: iso9660
     state: mounted
     opts: loop
-    path: /mnt
-    src: "{{ iso_path }}"
+    path: "{{ mnt_pth }}"
+    src: "{{ iso_pth }}"
+  when:
+    - mnt_pth != ""  
+    - iso_pth != ""  
+  register: mounted
 
 - name: Create repo from local media
   yum_repository:
-    baseurl: file:///mnt/
+    baseurl: "file://{{ mnt_pth }}"
     description: Local Media Repo
-    name: localrepo
+    name: "{{ reponame }}"
     enabled: yes
     gpgcheck: no
+  when: mounted|succeeded
 
-- name: Install RSYNC
+- name: Install extra_packages
   yum:
-    name: rsync
-    state: installed
+    name: "{{ xtras }}"
+    state: latest
 
 - name: Configure web server
   block:
@@ -40,11 +45,11 @@
         - "{{ web_root }}/{{ kick_media }}"
       changed_when: false
 
-    - name: Copy content to web dir
+    - name: Copy content to {{ web_root }}/{{ kick_media }}
       delegate_to: "{{ inventory_hostname }}"
       synchronize:
         dest: "{{ item }}"
-        src:  /mnt/
+        src:  "{{ mnt_pth }}"
         recursive: yes
       with_items: 
         - "{{ web_root }}/{{ kick_media }}"
@@ -71,6 +76,8 @@
         immediate: yes
         permanent: yes
         state: enabled
+  when:
+    - kick_media != ""
 
 - name: Configure TFTP
   block:
@@ -93,6 +100,7 @@
         src: "{{ item }}"
         dest: "{{ tftp_dir }}"
         setype: cobbler_var_lib_t
+      register: tftp
       with_items:
         - "{{ tftp_pxe }}"
 
@@ -104,6 +112,7 @@
         group: root
         mode: 0644
         setype: "{{ item.setype }}"
+      register: tftp
       with_items:
         - { src: 'default.j2', dest: '{{ tftp_dir }}/pxelinux.cfg/default', setype: 'cobbler_var_lib_t'}
         - { src: 'tftp.j2', dest: '/etc/xinetd.d/tftp', setype: 'etc_t'}
@@ -116,6 +125,7 @@
       with_items:
         - xinetd
         - tftp
+      when: tftp.changed
 
     - name: TFTP Firewall
       firewalld:
@@ -147,5 +157,25 @@
 
   when: 
     - dhcp
-    - dhcp_start != "" 
+    - dhcp_start != ""
     - dhcp_end != ""
+
+- name: Remove unnecessary media from system
+  block:
+    - name: unmount iso
+      mount:
+        path: "{{ mnt_pth }}"
+        state: unmounted
+      when: keep_mnt != true
+
+    - name: remove iso
+      file:
+        path: "{{ iso_pth }}"
+        state: absent
+      when: keep_iso != true
+
+    - name: remove_repo
+      file:
+        path: "/etc/yum.repos.d/{{ reponame }}.repo"
+        state: absent
+      when: keep_repo != true

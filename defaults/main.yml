@@ -14,19 +14,36 @@ tftp_pxe:
  - /mnt/isolinux/vmlinuz
 apache: httpd
 web_root: /var/www/html
+repoman: localrepo
+
 
 #Settable variables
-#Absolute path to .iso file
-iso_path: /root/rhel74.iso
+#Path where iso is to be mounted ex: /mnt
+mnt_pth: /mnt
 
-#Provide "Name" for version..etc - keep it simple ex: rhel7.4
-kick_media: 
+#Absolute path to .iso file
+iso_pth: /tmp/rhel-7.4.iso
+
+#Remove the iso from the system? Override to "true" to keep.
+keep_iso: true
+
+#Keep local yum repo or delete it? Override to "true" to keep.
+keep_repo: true
+
+#Keep iso mounted? Override to "true" to keep.
+keep_mnt: true
+
+#Comma separated list of packages to install
+xtras: rsync,policycoreutils-python
+
+#Provide product-name for media - keep it simple ex: rhel7.4
+kick_media: rhel7.4
 
 #DHCP range start address
-dhcp_start: 
+dhcp_start: ""
 
 #DHCP range end address
-dhcp_end: 
+dhcp_end: ""
 
 # Set to "true" to enable DHCP.
 dhcp: true
