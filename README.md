@@ -12,9 +12,8 @@ Role Variables
 --------------
 
 The settable variables for this role are in defaults/main.yml
-
-The absolute path to the installation .iso file. ex: /root/rhel-7-server-x86_64.iso
 ```
+The absolute path to the installation .iso file. ex: /root/rhel-7-server-x86_64.iso
 iso_path: 
 
 Define a short name for the kickstart media. ex: rhel7.4
@@ -28,10 +27,9 @@ keep_repo: false
 
 Keep iso mounted? Override to "true" to keep.
 keep_mnt: false
-
-
+```
 If you would like to configure DHCP services, set this to "true"; Please note that the subnet used during DHCP scope creation is the default IPv4 address (eth0) of the target system. For example, if your eth0 network information is 192.168.124.200/24, DHCP will be configured for 192.168.124.0/255.255.255.0. To override you will need to update kick_srvr, dhcp_net and dhcp_mask variables.
-
+```
 dhcp: false
 
 If DHCP is enabled, define the starting IP address of the scope.
